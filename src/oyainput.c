@@ -162,18 +162,19 @@ void create_user_input() {
 	if(ioctl(fdo, UI_SET_EVBIT, EV_SYN) < 0) die("error: ioctl");
 	if(ioctl(fdo, UI_SET_EVBIT, EV_KEY) < 0) die("error: ioctl");
 	if(ioctl(fdo, UI_SET_EVBIT, EV_MSC) < 0) die("error: ioctl");
-	for(int i = 0; i < KEY_MAX; ++i)
+
+	/* for(int i = 0; i < KEY_MAX; ++i) */
+	for(int i = 0; i < 0x240; ++i)  // NOT worked until KEY_MAX
 		if(ioctl(fdo, UI_SET_KEYBIT, i) < 0) die("error: ioctl");
 
-	struct uinput_user_dev uidev;
-	memset(&uidev, 0, sizeof(uidev));
-	snprintf(uidev.name, UINPUT_MAX_NAME_SIZE, "oyainput");
-	uidev.id.bustype = BUS_USB;
-	uidev.id.vendor  = 0x1;
-	uidev.id.product = 0x1;
-	uidev.id.version = 1;
-
-	if(write(fdo, &uidev, sizeof(uidev)) < 0) die("error: write");
+    struct uinput_setup usetup;
+    memset(&usetup, 0, sizeof(usetup));
+    strcpy(usetup.name, "oyainput");
+    usetup.id.bustype = BUS_USB;
+    usetup.id.vendor = 0x1;
+    usetup.id.product = 0x1;
+    usetup.id.version = 1;
+    if (ioctl(fdo, UI_DEV_SETUP, &usetup) < 0) die("error: ioctl");
 	if(ioctl(fdo, UI_DEV_CREATE) < 0) die("error: ioctl");
 
 }
